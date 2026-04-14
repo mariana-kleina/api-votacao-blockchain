@@ -1,63 +1,115 @@
 package com.api.repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.api.models.Candidato;
+import com.api.config.ConnectionFactory;
 import com.api.exceptions.CandidatoNaoEncontradoException;
-import com.api.exceptions.NumeroCandidatoExistenteException;
+import com.api.models.Candidato;
 
 public class CandidatoRepository {
 
-    private final List<Candidato> bancoSimulado = new ArrayList<>();
-    private int contadorId = 1;
-
     public void salvar(Candidato candidato) {
-
-    
-        boolean numeroExiste = bancoSimulado.stream()
-            .anyMatch(c -> c.getNumero() == candidato.getNumero());
-
-        if (numeroExiste) {
-            throw new NumeroCandidatoExistenteException();
+        String sql = "INSERT INTO candidatos (nome, partido, categoria, numero) VALUES (?, ?, ?, ?)";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, candidato.getNome());
+            stmt.setString(2, candidato.getPartido());
+            stmt.setString(3, candidato.getCategoria());
+            stmt.setInt(4, candidato.getNumero());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao salvar candidato: " + e.getMessage());
         }
-
-        candidato.setId(contadorId++);
-        bancoSimulado.add(candidato);
     }
 
     public List<Candidato> buscarTodos() {
-        return bancoSimulado;
+        List<Candidato> lista = new ArrayList<>();
+        String sql = "SELECT * FROM candidatos";
+        try (Connection conn = ConnectionFactory.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                lista.add(new Candidato(rs.getInt("id"), rs.getString("nome"), 
+                          rs.getString("partido"), rs.getString("categoria"), rs.getInt("numero")));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar candidatos.");
+        }
+        return lista;
     }
 
     public Candidato buscarPorId(int id) {
-        return bancoSimulado.stream()
-            .filter(c -> c.getId() == id)
-            .findFirst()
-            .orElseThrow(CandidatoNaoEncontradoException::new);
+        String sql = "SELECT * FROM candidatos WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Candidato(rs.getInt("id"), rs.getString("nome"), 
+                           rs.getString("partido"), rs.getString("categoria"), rs.getInt("numero"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar por ID.");
+        }
+        throw new CandidatoNaoEncontradoException();
     }
 
     public void deletar(int id) {
-        Candidato candidato = buscarPorId(id);
-        bancoSimulado.remove(candidato);
+        String sql = "DELETE FROM candidatos WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao deletar candidato.");
+        }
     }
 
+
     public List<Candidato> buscarPorPartido(String partido) {
-        return bancoSimulado.stream()
-            .filter(c -> c.getPartido().equalsIgnoreCase(partido))
-            .toList();
+        return buscarComFiltro("SELECT * FROM candidatos WHERE partido = ?", partido);
     }
 
     public List<Candidato> buscarPorCategoria(String categoria) {
-        return bancoSimulado.stream()
-            .filter(c -> c.getCategoria().equalsIgnoreCase(categoria))
-            .toList();
+        return buscarComFiltro("SELECT * FROM candidatos WHERE categoria = ?", categoria);
     }
 
     public List<Candidato> classificar(String categoria, String partido) {
-        return bancoSimulado.stream()
-            .filter(c -> c.getCategoria().equalsIgnoreCase(categoria)
-                      && c.getPartido().equalsIgnoreCase(partido))
-            .toList();
+        List<Candidato> lista = new ArrayList<>();
+        String sql = "SELECT * FROM candidatos WHERE categoria = ? AND partido = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, categoria);
+            stmt.setString(2, partido);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new Candidato(rs.getInt("id"), rs.getString("nome"), 
+                              rs.getString("partido"), rs.getString("categoria"), rs.getInt("numero")));
+                }
+            }
+        } catch (SQLException e) { }
+        return lista;
+    }
+
+    private List<Candidato> buscarComFiltro(String sql, String valor) {
+        List<Candidato> lista = new ArrayList<>();
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, valor);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new Candidato(rs.getInt("id"), rs.getString("nome"), 
+                              rs.getString("partido"), rs.getString("categoria"), rs.getInt("numero")));
+                }
+            }
+        } catch (SQLException e) { }
+        return lista;
     }
 }
