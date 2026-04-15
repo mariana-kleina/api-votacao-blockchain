@@ -15,7 +15,6 @@ public class CandidatoController {
     public String cadastrar(String json) throws Exception {
         Candidato candidato = mapper.readValue(json, Candidato.class);
 
-        // 🔒 Validações
         if (candidato.getNome() == null || candidato.getNome().isEmpty()) {
             throw new RuntimeException("Nome do candidato é obrigatório.");
         }
