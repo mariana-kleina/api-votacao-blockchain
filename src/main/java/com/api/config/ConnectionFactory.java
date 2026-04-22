@@ -18,16 +18,23 @@ public class ConnectionFactory {
     public static void inicializarBanco() {
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("CREATE TABLE IF NOT EXISTS eleitores (" +
-                         "id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), cpf VARCHAR(14), idade INT)");
-            
+                    "id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), cpf VARCHAR(14), idade INT)");
+
             stmt.execute("CREATE TABLE IF NOT EXISTS candidatos (" +
-                         "id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), partido VARCHAR(100), " +
-                         "categoria VARCHAR(100), numero INT)");
-            
+                    "id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), partido VARCHAR(100), " +
+                    "categoria VARCHAR(100), numero INT)");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS votos(" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "idEleitor INT, " +
+                    "idCandidato INT, " +
+                    "FOREIGN KEY (idEleitor) REFERENCES eleitores(id), " +
+                    "FOREIGN KEY (idCandidato) REFERENCES candidatos(id))");
+
             System.out.println("Banco de dados pronto e tabelas criadas!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    
+
 }

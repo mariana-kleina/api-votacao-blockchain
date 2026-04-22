@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import com.api.config.ConnectionFactory;
 import com.api.controller.CandidatoController;
 import com.api.controller.EleitorController;
+import com.api.controller.VotoHandler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -31,7 +32,7 @@ public class Main {
                 } else if ("GET".equals(method)) {
                     String[] partes = path.split("/");
                     if (partes.length > 2) {
-                        response = controller.listar(); 
+                        response = controller.listar();
                     } else {
                         response = controller.listar();
                     }
@@ -90,6 +91,8 @@ public class Main {
             }
             enviarResposta(exchange, response, statusCode);
         });
+
+        server.createContext("/voto", new VotoHandler());
 
         server.setExecutor(null);
         System.out.println("Servidor rodando em: http://localhost:8080");
