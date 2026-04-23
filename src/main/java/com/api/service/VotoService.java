@@ -28,4 +28,12 @@ public class VotoService {
     public List<Voto> listarVotos() {
         return repository.buscarTodos();
     }
+
+    public Voto buscarPorId(int id) {
+        return repository.buscarPorId(id);
+    }
+
+    public boolean deletar(int id) {
+        return repository.deletar(id);
+    }
 }

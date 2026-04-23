@@ -96,4 +96,51 @@ public class VotoRepository {
 
         return lista;
     }
+
+    public Voto buscarPorId(int id) {
+        String sql = """
+                    SELECT
+                        v.id,
+                        v.idEleitor,
+                        e.nome AS nomeEleitor,
+                        v.numeroCandidato,
+                        c.nome AS nomeCandidato
+                    FROM votos v
+                    JOIN eleitores e ON v.idEleitor = e.id
+                    JOIN candidatos c ON v.numeroCandidato = c.numero
+                    WHERE v.id = ?
+                """;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapearVoto(rs);
+            }
+
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean deletar(int id) {
+        String sql = "DELETE FROM votos WHERE id = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            int linhas = stmt.executeUpdate();
+
+            return linhas > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
