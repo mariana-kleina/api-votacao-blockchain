@@ -3,7 +3,7 @@ package com.api.models;
 public class Voto {
     private int id;
     private int idEleitor;
-    private int idCandidato;
+    private int numeroCandidato;
     private String nomeEleitor;
     private String nomeCandidato;
 
@@ -23,8 +23,8 @@ public class Voto {
         return nomeEleitor;
     }
 
-    public int getIdCandidato() {
-        return idCandidato;
+    public int getNumeroCandidato() {
+        return numeroCandidato;
     }
 
     public String getNomeCandidato() {
@@ -43,8 +43,8 @@ public class Voto {
         this.nomeCandidato = nomeCandidato;
     }
 
-    public void setIdCandidato(int idCandidato) {
-        this.idCandidato = idCandidato;
+    public void setNumeroCandidato(int numeroCandidato) {
+        this.numeroCandidato = numeroCandidato;
     }
 
     public void setNomeEleitor(String nomeEleitor) {

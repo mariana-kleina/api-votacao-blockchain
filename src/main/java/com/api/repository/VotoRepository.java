@@ -12,10 +12,27 @@ import com.api.models.Voto;
 import com.api.exceptions.VotoEleitorExistenteException;
 
 public class VotoRepository {
+
+    public boolean candidatoExiste(int numero) {
+        String sql = "SELECT COUNT(*) FROM candidatos WHERE numero = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, numero);
+            ResultSet rs = stmt.executeQuery();
+
+            return rs.next() && rs.getInt(1) > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void salvar(Voto voto) {
 
         String verificaSql = "SELECT COUNT(*) FROM votos WHERE idEleitor = ?";
-        String insertSql = "INSERT INTO votos (idEleitor, idCandidato) VALUES (?, ?)";
+        String insertSql = "INSERT INTO votos (idEleitor, numeroCandidato) VALUES (?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
 
@@ -30,7 +47,7 @@ public class VotoRepository {
 
             try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
                 stmt.setInt(1, voto.getIdEleitor());
-                stmt.setInt(2, voto.getIdCandidato());
+                stmt.setInt(2, voto.getNumeroCandidato());
                 stmt.executeUpdate();
             }
 
@@ -44,26 +61,29 @@ public class VotoRepository {
         voto.setId(rs.getInt("id"));
         voto.setIdEleitor(rs.getInt("idEleitor"));
         voto.setNomeEleitor(rs.getString("nomeEleitor"));
-        voto.setIdCandidato(rs.getInt("idCandidato"));
+        voto.setNumeroCandidato(rs.getInt("numeroCandidato"));
         voto.setNomeCandidato(rs.getString("nomeCandidato"));
         return voto;
     }
 
     public List<Voto> buscarTodos() {
         List<Voto> lista = new ArrayList<>();
+
+        String sql = """
+                    SELECT
+                        v.id,
+                        v.idEleitor,
+                        e.nome AS nomeEleitor,
+                        v.numeroCandidato,
+                        c.nome AS nomeCandidato
+                    FROM votos v
+                    JOIN eleitores e ON v.idEleitor = e.id
+                    JOIN candidatos c ON v.numeroCandidato = c.numero
+                    ORDER BY v.id
+                """;
+
         try (Connection conn = ConnectionFactory.getConnection();
-                PreparedStatement stmt = conn.prepareStatement("""
-                            SELECT
-                                v.id,
-                                v.idEleitor,
-                                e.nome AS nomeEleitor,
-                                v.idCandidato,
-                                c.nome AS nomeCandidato
-                            FROM votos v
-                            JOIN eleitores e ON v.idEleitor = e.id
-                            JOIN candidatos c ON v.idCandidato = c.id
-                            ORDER BY v.id
-                        """);
+                PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -73,6 +93,7 @@ public class VotoRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
         return lista;
     }
 }
