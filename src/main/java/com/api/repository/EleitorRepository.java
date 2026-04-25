@@ -62,6 +62,20 @@ public class EleitorRepository {
         return null;
     }
 
+    public void atualizar(int id, Eleitor eleitor) {
+    String sql = "UPDATE eleitores SET nome = ?, cpf = ?, idade = ? WHERE id = ?";
+    try (Connection conn = ConnectionFactory.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, eleitor.getNome());
+        stmt.setString(2, eleitor.getCpf());
+        stmt.setInt(3, eleitor.getIdade());
+        stmt.setInt(4, id);
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    }
+}
+
     public void deletar(int id) {
         String sql = "DELETE FROM eleitores WHERE id = ?";
         try (Connection conn = ConnectionFactory.getConnection();

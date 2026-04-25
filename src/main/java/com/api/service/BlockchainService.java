@@ -28,7 +28,7 @@ public class BlockchainService {
         repository.adicionarVoto(votoBloco);
     }
 
-    // Verifica se eleitor votou — retorna os dados públicos ou null
+    // Verifica se eleitor votou, retorna os dados públicos ou null
     public VotoBloco verificarEleitor(String cpf) {
         if (!repository.eleitorVotou(cpf)) {
             return null; // Handler trata o null e retorna a mensagem
@@ -52,7 +52,7 @@ public class BlockchainService {
         return repository.getBlockchain();
     }
 
-    // Chamado no Main ao iniciar o servidor — reconstrói a cadeia do banco
+    // Chamado no Main ao iniciar o servidor, reconstrói a cadeia do banco
     public void reconstruirDoBanco() {
         List<Voto> votos = votoRepository.buscarTodos();
 

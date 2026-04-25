@@ -62,7 +62,7 @@ public class BlockchainRepository {
     Bloco bloco = new Bloco(
             indice,
             hashAnterior,
-            hashAtual,        // ← agora calculado corretamente
+            hashAtual,        // agora calculado corretamente
             new ArrayList<>(votosPendentes),
             timestamp,
             votosPendentes.size()

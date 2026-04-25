@@ -19,6 +19,7 @@ public class EleitorHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
+        String path = exchange.getRequestURI().getPath();
         String response = "";
         int statusCode = 200;
 
@@ -28,8 +29,16 @@ public class EleitorHandler implements HttpHandler {
                 statusCode = 201;
             } else if ("GET".equals(method)) {
                 response = listar();
+            } else if ("PUT".equals(method)) {          // ← ADICIONADO
+                String[] partes = path.split("/");
+                if (partes.length > 2) {
+                    int id = Integer.parseInt(partes[2]);
+                    response = atualizar(id, lerCorpo(exchange));
+                } else {
+                    response = "ID necessário.";
+                    statusCode = 400;
+                }
             } else if ("DELETE".equals(method)) {
-                String path = exchange.getRequestURI().getPath();
                 String[] partes = path.split("/");
                 if (partes.length > 2) {
                     repository.deletar(Integer.parseInt(partes[2]));
@@ -57,6 +66,15 @@ public class EleitorHandler implements HttpHandler {
         }
         repository.salvar(novoEleitor);
         return "Sucesso: Eleitor cadastrado.";
+    }
+
+    private String atualizar(int id, String json) throws Exception {  // ← ADICIONADO
+        Eleitor eleitor = mapper.readValue(json, Eleitor.class);
+        if (eleitor.getIdade() < 16) {
+            throw new IdadeInvalidaException("Eleitor inapto: idade mínima é 16 anos.");
+        }
+        repository.atualizar(id, eleitor);
+        return "Sucesso: Eleitor atualizado.";
     }
 
     private String listar() throws Exception {
