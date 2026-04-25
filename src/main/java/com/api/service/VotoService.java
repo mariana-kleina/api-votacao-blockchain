@@ -2,11 +2,15 @@ package com.api.service;
 
 import java.util.List;
 
+import com.api.models.Eleitor;
 import com.api.models.Voto;
+import com.api.repository.EleitorRepository;
 import com.api.repository.VotoRepository;
 
 public class VotoService {
     private final VotoRepository repository = new VotoRepository();
+    private final EleitorRepository eleitorRepository = new EleitorRepository();
+    private final BlockchainService blockchainService = new BlockchainService();
 
     public void cadastrarVoto(Voto voto) {
 
@@ -23,6 +27,12 @@ public class VotoService {
         }
 
         repository.salvar(voto);
+
+        // REGISTRA NA BLOCKCHAIN APÓS SALVAR NO BANCO
+        Eleitor eleitor = eleitorRepository.buscarPorId(voto.getIdEleitor());
+        if (eleitor != null) {
+            blockchainService.registrarVoto(eleitor.getCpf(), voto.getNumeroCandidato());
+        }
     }
 
     public List<Voto> listarVotos() {
