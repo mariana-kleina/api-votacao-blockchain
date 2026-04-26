@@ -1,0 +1,69 @@
+### Criar eleitor
+POST http://localhost:8080/eleitor
+Content-Type: application/json
+
+{
+  "nome": "Ana",
+  "cpf": "12345678988",
+  "idade": 130
+}
+
+###
+
+### Criar candidato
+POST http://localhost:8080/candidato
+Content-Type: application/json
+
+{
+  "nome": "Maria",
+  "partido": "ABC",
+  "categoria": "Prefeito",
+  "numero": 
+}
+
+###
+
+### Votar
+POST http://localhost:8080/voto
+Content-Type: application/json
+
+{
+  "idEleitor": 1,
+  "numeroCandidato": 10
+}
+
+###
+
+### Listar blockchain
+GET http://localhost:8080/blockchain
+
+###
+
+### Total de votos
+GET http://localhost:8080/blockchain/total
+
+###
+
+### Ver votos por candidato
+GET http://localhost:8080/blockchain/candidato/10
+
+###
+
+### Verificar eleitor
+GET http://localhost:8080/blockchain/eleitor/12345678900
+
+
+###
+
+### Listar votos
+GET http://localhost:8080/voto
+
+###
+
+### Buscar voto por ID
+GET http://localhost:8080/voto/1
+
+###
+
+### Deletar voto
+DELETE http://localhost:8080/voto/1

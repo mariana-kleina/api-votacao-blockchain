@@ -27,7 +27,9 @@ public class Main {
         server.createContext("/blockchain", new BlockchainHandler());
 
         server.setExecutor(null);
+
         System.out.println("Servidor rodando em: http://localhost:8080");
+
         server.start();
     }
 }

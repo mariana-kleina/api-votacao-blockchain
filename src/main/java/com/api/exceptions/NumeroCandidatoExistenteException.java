@@ -1,7 +1,7 @@
 package com.api.exceptions;
 
-public class NumeroCandidatoExistenteException extends RuntimeException {
+public class NumeroCandidatoExistenteException extends ApiException {
     public NumeroCandidatoExistenteException() {
-        super("Já existe um candidato com esse número!");
+        super("Já existe um candidato com esse número");
     }
 }

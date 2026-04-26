@@ -1,10 +1,7 @@
 package com.api.exceptions;
 
-public class CandidatoNaoEncontradoException extends RuntimeException {
+public class CandidatoNaoEncontradoException extends ApiException {
     public CandidatoNaoEncontradoException() {
-        super("Candidato não encontrado!");
-    
-
-}
-
+        super("Candidato não encontrado");
+    }
 }
