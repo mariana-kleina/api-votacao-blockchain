@@ -10,12 +10,12 @@ public class ResponseUtil {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static void sucesso(HttpExchange exchange, int status, String mensagem, Object dados) throws IOException {
-        enviar(exchange, status, new ApiResponse(true, mensagem, dados));
+    public static void sucesso(HttpExchange exchange, int status, String msg, Object dados) throws IOException {
+        enviar(exchange, status, new ApiResponse(true, msg, dados));
     }
 
-    public static void erro(HttpExchange exchange, int status, String mensagem) throws IOException {
-        enviar(exchange, status, new ApiResponse(false, mensagem, null));
+    public static void erro(HttpExchange exchange, int status, String msg) throws IOException {
+        enviar(exchange, status, new ApiResponse(false, msg, null));
     }
 
     private static void enviar(HttpExchange exchange, int status, ApiResponse response) throws IOException {

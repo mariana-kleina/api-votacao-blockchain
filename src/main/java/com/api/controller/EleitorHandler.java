@@ -2,10 +2,10 @@ package com.api.controller;
 
 import java.io.IOException;
 
-import com.api.exceptions.ApiException;
-import com.api.exceptions.IdadeInvalidaException;
+import com.api.exceptions.ValidationException;
 import com.api.models.Eleitor;
 import com.api.repository.EleitorRepository;
+import com.api.util.ExceptionHandlerUtil;
 import com.api.util.ResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
@@ -19,20 +19,17 @@ public class EleitorHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        String method = exchange.getRequestMethod();
-        String path = exchange.getRequestURI().getPath();
-
         try {
 
+            String method = exchange.getRequestMethod();
+            String path = exchange.getRequestURI().getPath();
+
             if ("POST".equals(method)) {
-                Eleitor eleitor = mapper.readValue(exchange.getRequestBody(), Eleitor.class);
 
-                if (eleitor.getIdade() < 16) {
-                    throw new IdadeInvalidaException("Idade mínima é 16 anos");
-                }
+                Eleitor e = mapper.readValue(exchange.getRequestBody(), Eleitor.class);
+                validar(e);
 
-                repository.salvar(eleitor);
-
+                repository.salvar(e);
                 ResponseUtil.sucesso(exchange, 201, "Eleitor cadastrado", null);
 
             } else if ("GET".equals(method)) {
@@ -41,24 +38,17 @@ public class EleitorHandler implements HttpHandler {
 
             } else if ("PUT".equals(method)) {
 
-                String[] partes = path.split("/");
-                int id = Integer.parseInt(partes[2]);
+                int id = Integer.parseInt(path.split("/")[2]);
+                Eleitor e = mapper.readValue(exchange.getRequestBody(), Eleitor.class);
 
-                Eleitor eleitor = mapper.readValue(exchange.getRequestBody(), Eleitor.class);
-
-                if (eleitor.getIdade() < 16) {
-                    throw new IdadeInvalidaException("Idade mínima é 16 anos");
-                }
-
-                repository.atualizar(id, eleitor);
+                validar(e);
+                repository.atualizar(id, e);
 
                 ResponseUtil.sucesso(exchange, 200, "Eleitor atualizado", null);
 
             } else if ("DELETE".equals(method)) {
 
-                String[] partes = path.split("/");
-                int id = Integer.parseInt(partes[2]);
-
+                int id = Integer.parseInt(path.split("/")[2]);
                 repository.deletar(id);
 
                 ResponseUtil.sucesso(exchange, 200, "Eleitor removido", null);
@@ -67,11 +57,20 @@ public class EleitorHandler implements HttpHandler {
                 ResponseUtil.erro(exchange, 405, "Método não permitido");
             }
 
-        } catch (ApiException e) {
-            ResponseUtil.erro(exchange, 400, e.getMessage());
-
         } catch (Exception e) {
-            ResponseUtil.erro(exchange, 500, "Erro interno");
+            ExceptionHandlerUtil.handle(exchange, e);
         }
+    }
+
+    private void validar(Eleitor e) {
+
+        if (e.getNome() == null || e.getNome().isBlank())
+            throw new ValidationException("Nome é obrigatório");
+
+        if (e.getCpf() == null || !e.getCpf().matches("\\d{11}"))
+            throw new ValidationException("CPF inválido");
+
+        if (e.getIdade() < 16)
+            throw new ValidationException("Idade mínima é 16 anos");
     }
 }

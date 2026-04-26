@@ -12,15 +12,7 @@ public class ApiResponse {
         this.dados = dados;
     }
 
-    public boolean isSucesso() {
-        return sucesso;
-    }
-
-    public String getMensagem() {
-        return mensagem;
-    }
-
-    public Object getDados() {
-        return dados;
-    }
+    public boolean isSucesso() { return sucesso; }
+    public String getMensagem() { return mensagem; }
+    public Object getDados() { return dados; }
 }

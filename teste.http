@@ -3,9 +3,9 @@ POST http://localhost:8080/eleitor
 Content-Type: application/json
 
 {
-  "nome": "Ana",
-  "cpf": "12345678988",
-  "idade": 130
+  "nome": "Josefina",
+  "cpf": "12345678915",
+  "idade": 100
 }
 
 ###
@@ -15,10 +15,10 @@ POST http://localhost:8080/candidato
 Content-Type: application/json
 
 {
-  "nome": "Maria",
-  "partido": "ABC",
+  "nome": "Zoião",
+  "partido": "ABA",
   "categoria": "Prefeito",
-  "numero": 
+  "numero": 45
 }
 
 ###
@@ -28,8 +28,8 @@ POST http://localhost:8080/voto
 Content-Type: application/json
 
 {
-  "idEleitor": 1,
-  "numeroCandidato": 10
+  "idEleitor": 12,
+  "numeroCandidato": 45
 }
 
 ###
@@ -45,12 +45,12 @@ GET http://localhost:8080/blockchain/total
 ###
 
 ### Ver votos por candidato
-GET http://localhost:8080/blockchain/candidato/10
+GET http://localhost:8080/blockchain/candidato/45
 
 ###
 
 ### Verificar eleitor
-GET http://localhost:8080/blockchain/eleitor/12345678900
+GET http://localhost:8080/blockchain/eleitor/12345678901
 
 
 ###
@@ -67,3 +67,8 @@ GET http://localhost:8080/voto/1
 
 ### Deletar voto
 DELETE http://localhost:8080/voto/1
+
+###
+
+### Deletar voto
+GET http://localhost:8080/eleitor/1

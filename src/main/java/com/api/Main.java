@@ -15,7 +15,7 @@ public class Main {
 
         ConnectionFactory.inicializarBanco();
 
-        // RECONSTRÓI A BLOCKCHAIN COM OS VOTOS JÁ EXISTENTES NO BANCO
+        //RECONSTROI A BLOCKCHAIN COM OS VOTOS JA EXISTENTES NO BANCO
         BlockchainService blockchainService = new BlockchainService();
         blockchainService.reconstruirDoBanco();
 

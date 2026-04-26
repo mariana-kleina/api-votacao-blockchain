@@ -1,7 +1,7 @@
 package com.api.exceptions;
 
-public class IdadeInvalidaException extends ApiException {
-    public IdadeInvalidaException(String mensagem) {
-        super(mensagem);
+public class IdadeInvalidaException extends ValidationException {
+    public IdadeInvalidaException(String msg) {
+        super(msg);
     }
 }

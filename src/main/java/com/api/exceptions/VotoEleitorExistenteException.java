@@ -1,7 +1,7 @@
 package com.api.exceptions;
 
-public class VotoEleitorExistenteException extends ApiException {
+public class VotoEleitorExistenteException extends ValidationException {
     public VotoEleitorExistenteException() {
-        super("Já existe um voto desse eleitor");
+        super("Eleitor já votou");
     }
 }

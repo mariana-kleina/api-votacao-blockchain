@@ -1,11 +1,15 @@
+com\api\util\ExceptionHandlerUtil.class
 com\api\Main.class
 com\api\models\Candidato.class
 com\api\controller\VotoHandler.class
 com\api\repository\CandidatoRepository.class
 com\api\exceptions\ApiException.class
+com\api\exceptions\CpfDuplicadoException.class
 com\api\models\VotoBloco.class
 com\api\service\BlockchainService.class
+com\api\exceptions\DatabaseException.class
 com\api\repository\VotoRepository.class
+com\api\exceptions\ValidationException.class
 com\api\exceptions\IdadeInvalidaException.class
 com\api\repository\EleitorRepository.class
 com\api\exceptions\NumeroCandidatoExistenteException.class
@@ -25,3 +29,4 @@ com\api\util\ResponseUtil.class
 com\api\exceptions\VotoEleitorExistenteException.class
 com\api\controller\CandidatoHandler.class
 com\api\service\CandidatoService.class
+com\api\exceptions\ResourceNotFoundException.class

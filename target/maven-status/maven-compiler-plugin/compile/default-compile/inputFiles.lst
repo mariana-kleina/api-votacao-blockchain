@@ -6,8 +6,12 @@ C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\dto\ApiResponse.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\ApiException.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\CandidatoNaoEncontradoException.java
+C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\CpfDuplicadoException.java
+C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\DatabaseException.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\IdadeInvalidaException.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\NumeroCandidatoExistenteException.java
+C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\ResourceNotFoundException.java
+C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\ValidationException.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\exceptions\VotoEleitorExistenteException.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\Main.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\models\Blockchain.java
@@ -23,5 +27,6 @@ C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\service\BlockchainService.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\service\CandidatoService.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\service\VotoService.java
+C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\util\ExceptionHandlerUtil.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\util\HashUtil.java
 C:\Users\SUPORTE-TI\Documents\faxul\api-votacao-blockchain\src\main\java\com\api\util\ResponseUtil.java
