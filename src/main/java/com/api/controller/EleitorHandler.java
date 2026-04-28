@@ -1,76 +1,122 @@
 package com.api.controller;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
-import com.api.exceptions.ValidationException;
+import com.api.exceptions.IdadeInvalidaException;
 import com.api.models.Eleitor;
 import com.api.repository.EleitorRepository;
-import com.api.util.ExceptionHandlerUtil;
-import com.api.util.ResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class EleitorHandler implements HttpHandler {
-
     private final EleitorRepository repository = new EleitorRepository();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        String method = exchange.getRequestMethod();
+        String path = exchange.getRequestURI().getPath();
+        String response = "";
+        int statusCode = 200;
 
         try {
-
-            String method = exchange.getRequestMethod();
-            String path = exchange.getRequestURI().getPath();
-
             if ("POST".equals(method)) {
-
-                Eleitor e = mapper.readValue(exchange.getRequestBody(), Eleitor.class);
-                validar(e);
-
-                repository.salvar(e);
-                ResponseUtil.sucesso(exchange, 201, "Eleitor cadastrado", null);
+                response = cadastrar(lerCorpo(exchange));
+                statusCode = 201;
 
             } else if ("GET".equals(method)) {
 
-                ResponseUtil.sucesso(exchange, 200, "Lista de eleitores", repository.buscarTodos());
+                String[] partes = path.split("/");
 
-            } else if ("PUT".equals(method)) {
+                if (partes.length > 2) {
+                    int id = Integer.parseInt(partes[2]);
 
-                int id = Integer.parseInt(path.split("/")[2]);
-                Eleitor e = mapper.readValue(exchange.getRequestBody(), Eleitor.class);
+                    Eleitor eleitor = repository.buscarPorId(id);
 
-                validar(e);
-                repository.atualizar(id, e);
+                    if (eleitor == null) {
+                        response = "Erro: Eleitor não encontrado.";
+                        statusCode = 404;
+                    } else {
+                        response = mapper.writeValueAsString(eleitor);
+                    }
 
-                ResponseUtil.sucesso(exchange, 200, "Eleitor atualizado", null);
+                } else {
+                    response = listar();
+                }
+
+            } else if ("PUT".equals(method)) { 
+                String[] partes = path.split("/");
+                if (partes.length > 2) {
+                    int id = Integer.parseInt(partes[2]);
+                    response = atualizar(id, lerCorpo(exchange));
+                } else {
+                    response = "ID necessário.";
+                    statusCode = 400;
+                }
 
             } else if ("DELETE".equals(method)) {
-
-                int id = Integer.parseInt(path.split("/")[2]);
-                repository.deletar(id);
-
-                ResponseUtil.sucesso(exchange, 200, "Eleitor removido", null);
-
-            } else {
-                ResponseUtil.erro(exchange, 405, "Método não permitido");
+                String[] partes = path.split("/");
+                if (partes.length > 2) {
+                    repository.deletar(Integer.parseInt(partes[2]));
+                    response = "Eleitor removido com sucesso.";
+                } else {
+                    response = "ID necessário.";
+                    statusCode = 400;
+                }
             }
 
+        } catch (IdadeInvalidaException e) {
+            response = "Erro: " + e.getMessage();
+            statusCode = 400;
+
+        } catch (NumberFormatException e) {
+            response = "Erro: ID inválido.";
+            statusCode = 400;
+
         } catch (Exception e) {
-            ExceptionHandlerUtil.handle(exchange, e);
+            response = "Erro interno: " + e.getMessage();
+            statusCode = 500;
         }
+
+        enviarResposta(exchange, response, statusCode);
     }
 
-    private void validar(Eleitor e) {
+    private String cadastrar(String json) throws Exception {
+        Eleitor novoEleitor = mapper.readValue(json, Eleitor.class);
+        if (novoEleitor.getIdade() < 16) {
+            throw new IdadeInvalidaException("Eleitor inapto: idade mínima é 16 anos.");
+        }
+        repository.salvar(novoEleitor);
+        return "Sucesso: Eleitor cadastrado.";
+    }
 
-        if (e.getNome() == null || e.getNome().isBlank())
-            throw new ValidationException("Nome é obrigatório");
+    private String atualizar(int id, String json) throws Exception { 
+        Eleitor eleitor = mapper.readValue(json, Eleitor.class);
+        if (eleitor.getIdade() < 16) {
+            throw new IdadeInvalidaException("Eleitor inapto: idade mínima é 16 anos.");
+        }
+        repository.atualizar(id, eleitor);
+        return "Sucesso: Eleitor atualizado.";
+    }
 
-        if (e.getCpf() == null || !e.getCpf().matches("\\d{11}"))
-            throw new ValidationException("CPF inválido");
+    private String listar() throws Exception {
+        return mapper.writeValueAsString(repository.buscarTodos());
+    }
 
-        if (e.getIdade() < 16)
-            throw new ValidationException("Idade mínima é 16 anos");
+    private String lerCorpo(HttpExchange exchange) throws IOException {
+        InputStream is = exchange.getRequestBody();
+        return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    private void enviarResposta(HttpExchange exchange, String response, int statusCode) throws IOException {
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
     }
 }
