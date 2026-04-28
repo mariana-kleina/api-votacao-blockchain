@@ -20,23 +20,24 @@ public class BlockchainService {
 
     // Chamado pelo VotoService após salvar o voto no banco
     public void registrarVoto(String cpf, int numeroCandidato) {
-        String candidatoHash = HashUtil.gerarHash(String.valueOf(numeroCandidato));
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
-        VotoBloco votoBloco = new VotoBloco(cpf, candidatoHash, timestamp);
+        String votoHash = HashUtil.gerarHash(numeroCandidato + cpf + timestamp);
+
+        VotoBloco votoBloco = new VotoBloco(cpf, votoHash, timestamp);
         repository.adicionarVoto(votoBloco);
     }
 
     // Verifica se eleitor votou, retorna os dados públicos ou null
     public VotoBloco verificarEleitor(String cpf) {
         if (!repository.eleitorVotou(cpf)) {
-            return null; // Handler trata o null e retorna a mensagem
+            return null;
         }
         return repository.buscarVotoEleitor(cpf);
     }
 
-    // Total de votos de um candidato (recalcula o hash para comparar)
+    // Total de votos de um candidato (percorre os blocos contando por número, não por hash)
     public int votosPorCandidato(int numeroCandidato) {
         String candidatoHash = HashUtil.gerarHash(String.valueOf(numeroCandidato));
         return repository.votosPorCandidato(candidatoHash);
