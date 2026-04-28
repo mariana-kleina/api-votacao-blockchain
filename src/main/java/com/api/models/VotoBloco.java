@@ -1,14 +1,19 @@
 package com.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class VotoBloco {
 
     private String cpfEleitor;
-    private String candidatoHash;  // SHA-256 do numeroCandidato
+    @JsonIgnore
+    private int numeroCandidato;
+    private String votoHash;
     private String timestamp;
 
-    public VotoBloco(String cpfEleitor, String candidatoHash, String timestamp) {
+    public VotoBloco(String cpfEleitor, int numeroCandidato, String votoHash, String timestamp) {
         this.cpfEleitor = cpfEleitor;
-        this.candidatoHash = candidatoHash;
+        this.numeroCandidato = numeroCandidato;
+        this.votoHash = votoHash;
         this.timestamp = timestamp;
     }
 
@@ -16,8 +21,12 @@ public class VotoBloco {
         return cpfEleitor;
     }
 
-    public String getCandidatoHash() {
-        return candidatoHash;
+    public int getNumeroCandidato() {
+        return numeroCandidato;
+    }
+
+    public String getVotoHash() {
+        return votoHash;
     }
 
     public String getTimestamp() {
@@ -28,8 +37,12 @@ public class VotoBloco {
         this.cpfEleitor = cpfEleitor;
     }
 
-    public void setCandidatoHash(String candidatoHash) {
-        this.candidatoHash = candidatoHash;
+    public void setNumeroCandidato(int numeroCandidato) {
+        this.numeroCandidato = numeroCandidato;
+    }
+
+    public void setVotoHash(String votoHash) {
+        this.votoHash = votoHash;
     }
 
     public void setTimestamp(String timestamp) {

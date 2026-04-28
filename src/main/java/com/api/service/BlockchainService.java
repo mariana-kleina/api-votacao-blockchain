@@ -18,18 +18,16 @@ public class BlockchainService {
     private final EleitorRepository eleitorRepository = new EleitorRepository();
     private final VotoRepository votoRepository = new VotoRepository();
 
-    // Chamado pelo VotoService após salvar o voto no banco
     public void registrarVoto(String cpf, int numeroCandidato) {
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
         String votoHash = HashUtil.gerarHash(numeroCandidato + cpf + timestamp);
 
-        VotoBloco votoBloco = new VotoBloco(cpf, votoHash, timestamp);
+        VotoBloco votoBloco = new VotoBloco(cpf, numeroCandidato, votoHash, timestamp);
         repository.adicionarVoto(votoBloco);
     }
 
-    // Verifica se eleitor votou, retorna os dados públicos ou null
     public VotoBloco verificarEleitor(String cpf) {
         if (!repository.eleitorVotou(cpf)) {
             return null;
@@ -37,23 +35,18 @@ public class BlockchainService {
         return repository.buscarVotoEleitor(cpf);
     }
 
-    // Total de votos de um candidato (percorre os blocos contando por número, não por hash)
     public int votosPorCandidato(int numeroCandidato) {
-        String candidatoHash = HashUtil.gerarHash(String.valueOf(numeroCandidato));
-        return repository.votosPorCandidato(candidatoHash);
+        return repository.votosPorCandidato(numeroCandidato);
     }
 
-    // Total geral de votos na cadeia
     public int totalDeVotos() {
         return repository.totalDeVotos();
     }
 
-    // Retorna todos os blocos fechados
     public com.api.models.Blockchain getBlockchain() {
         return repository.getBlockchain();
     }
 
-    // Chamado no Main ao iniciar o servidor, reconstrói a cadeia do banco
     public void reconstruirDoBanco() {
         List<Voto> votos = votoRepository.buscarTodos();
 

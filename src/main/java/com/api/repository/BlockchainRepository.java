@@ -14,11 +14,10 @@ public class BlockchainRepository {
 
     private static final int LIMITE_VOTOS_POR_BLOCO = 3;
 
-    // Singleton — uma única instância durante toda execução do servidor
     private static BlockchainRepository instancia;
 
     private List<Bloco> cadeia;
-    private List<VotoBloco> votosPendentes; // votos do bloco ainda aberto
+    private List<VotoBloco> votosPendentes;
 
     private BlockchainRepository() {
         this.cadeia = new ArrayList<>();
@@ -32,7 +31,6 @@ public class BlockchainRepository {
         return instancia;
     }
 
-    // Adiciona um voto ao bloco atual. Se atingir o limite, fecha o bloco.
     public void adicionarVoto(VotoBloco votoBloco) {
         votosPendentes.add(votoBloco);
 
@@ -41,38 +39,36 @@ public class BlockchainRepository {
         }
     }
 
-    // Fecha o bloco atual e inicia um novo
     private void fecharBloco() {
-    int indice = cadeia.size() + 1;
-    String hashAnterior = cadeia.isEmpty() ? "0000" : cadeia.get(cadeia.size() - 1).getHashAtual();
-    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        int indice = cadeia.size() + 1;
+        String hashAnterior = cadeia.isEmpty() ? "0000" : cadeia.get(cadeia.size() - 1).getHashAtual();
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
-    // Calcula o hash com base em todos os dados do bloco
-    StringBuilder dados = new StringBuilder();
-    dados.append(indice);
-    dados.append(hashAnterior);
-    dados.append(timestamp);
-    for (VotoBloco v : votosPendentes) {
-        dados.append(v.getCpfEleitor());
-        dados.append(v.getCandidatoHash());
-        dados.append(v.getTimestamp());
+        StringBuilder dados = new StringBuilder();
+        dados.append(indice);
+        dados.append(hashAnterior);
+        dados.append(timestamp);
+        for (VotoBloco v : votosPendentes) {
+            dados.append(v.getCpfEleitor());
+            dados.append(v.getNumeroCandidato());
+            dados.append(v.getVotoHash());
+            dados.append(v.getTimestamp());
+        }
+        String hashAtual = HashUtil.gerarHash(dados.toString());
+
+        Bloco bloco = new Bloco(
+                indice,
+                hashAnterior,
+                hashAtual,
+                new ArrayList<>(votosPendentes),
+                timestamp,
+                votosPendentes.size()
+        );
+
+        cadeia.add(bloco);
+        votosPendentes.clear();
     }
-    String hashAtual = HashUtil.gerarHash(dados.toString());
 
-    Bloco bloco = new Bloco(
-            indice,
-            hashAnterior,
-            hashAtual,        // agora calculado corretamente
-            new ArrayList<>(votosPendentes),
-            timestamp,
-            votosPendentes.size()
-    );
-
-    cadeia.add(bloco);
-    votosPendentes.clear();
-}
-
-    // Verifica se o eleitor já votou (busca na cadeia e nos pendentes)
     public boolean eleitorVotou(String cpf) {
         for (Bloco bloco : cadeia) {
             for (VotoBloco voto : bloco.getVotos()) {
@@ -85,7 +81,6 @@ public class BlockchainRepository {
         return false;
     }
 
-    // Retorna o VotoBloco de um eleitor específico
     public VotoBloco buscarVotoEleitor(String cpf) {
         for (Bloco bloco : cadeia) {
             for (VotoBloco voto : bloco.getVotos()) {
@@ -98,21 +93,19 @@ public class BlockchainRepository {
         return null;
     }
 
-    // Conta votos de um candidato pelo hash
-    public int votosPorCandidato(String candidatoHash) {
+    public int votosPorCandidato(int numeroCandidato) {
         int total = 0;
         for (Bloco bloco : cadeia) {
             for (VotoBloco voto : bloco.getVotos()) {
-                if (voto.getCandidatoHash().equals(candidatoHash)) total++;
+                if (voto.getNumeroCandidato() == numeroCandidato) total++;
             }
         }
         for (VotoBloco voto : votosPendentes) {
-            if (voto.getCandidatoHash().equals(candidatoHash)) total++;
+            if (voto.getNumeroCandidato() == numeroCandidato) total++;
         }
         return total;
     }
 
-    // Conta todos os votos registrados
     public int totalDeVotos() {
         int total = 0;
         for (Bloco bloco : cadeia) {
@@ -122,7 +115,6 @@ public class BlockchainRepository {
         return total;
     }
 
-    // Retorna a blockchain completa como model
     public Blockchain getBlockchain() {
         return new Blockchain(cadeia);
     }
