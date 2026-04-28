@@ -52,4 +52,4 @@ Abaixo estão listadas as rotas principais da aplicação para a gestão do sist
 6. Rafael Villa
 
 ---
-**Data Limite para Entrega**: 28/04/2026 às 18h.
+**Data Limite para Entrega**: 28/04/2026 às 18h..
