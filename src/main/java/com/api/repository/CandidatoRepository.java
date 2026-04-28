@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.api.config.ConnectionFactory;
 import com.api.exceptions.CandidatoNaoEncontradoException;
+import com.api.exceptions.DatabaseException;
 import com.api.exceptions.NumeroCandidatoExistenteException;
 import com.api.models.Candidato;
 
@@ -41,7 +42,7 @@ public class CandidatoRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar candidato: " + e.getMessage());
+            throw new DatabaseException("Erro ao salvar candidato: " + e.getMessage());
         }
     }
 
@@ -59,7 +60,7 @@ public class CandidatoRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar candidatos: " + e.getMessage());
+            throw new DatabaseException("Erro ao listar candidatos: " + e.getMessage());
         }
 
         return lista;
@@ -81,7 +82,7 @@ public class CandidatoRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar candidato por ID: " + e.getMessage());
+            throw new DatabaseException("Erro ao buscar candidato por ID: " + e.getMessage());
         }
 
         throw new CandidatoNaoEncontradoException();
@@ -102,7 +103,7 @@ public class CandidatoRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar candidato: " + e.getMessage());
+            throw new DatabaseException("Erro ao deletar candidato: " + e.getMessage());
         }
     }
 
@@ -136,7 +137,7 @@ public class CandidatoRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao classificar candidatos: " + e.getMessage());
+            throw new DatabaseException("Erro ao classificar candidatos: " + e.getMessage());
         }
 
         return lista;
@@ -158,7 +159,7 @@ public class CandidatoRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao executar filtro: " + e.getMessage());
+            throw new DatabaseException("Erro ao executar filtro: " + e.getMessage());
         }
 
         return lista;

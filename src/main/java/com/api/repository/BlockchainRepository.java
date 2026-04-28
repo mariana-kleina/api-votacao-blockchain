@@ -1,18 +1,18 @@
 package com.api.repository;
 
-import com.api.models.Bloco;
-import com.api.models.Blockchain;
-import com.api.models.VotoBloco;
-import com.api.util.HashUtil;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.api.models.Blockchain;
+import com.api.models.Bloco;
+import com.api.models.VotoBloco;
+import com.api.util.HashUtil;
+
 public class BlockchainRepository {
 
-    private static final int LIMITE_VOTOS_POR_BLOCO = 5;
+    private static final int LIMITE_VOTOS_POR_BLOCO = 3;
 
     // Singleton — uma única instância durante toda execução do servidor
     private static BlockchainRepository instancia;

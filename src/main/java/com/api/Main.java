@@ -15,7 +15,7 @@ public class Main {
 
         ConnectionFactory.inicializarBanco();
 
-        // RECONSTRÓI A BLOCKCHAIN COM OS VOTOS JÁ EXISTENTES NO BANCO
+        //RECONSTROI A BLOCKCHAIN COM OS VOTOS JA EXISTENTES NO BANCO
         BlockchainService blockchainService = new BlockchainService();
         blockchainService.reconstruirDoBanco();
 
@@ -27,7 +27,9 @@ public class Main {
         server.createContext("/blockchain", new BlockchainHandler());
 
         server.setExecutor(null);
+
         System.out.println("Servidor rodando em: http://localhost:8080");
+
         server.start();
     }
 }

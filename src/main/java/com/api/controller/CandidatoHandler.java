@@ -1,66 +1,59 @@
 package com.api.controller;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 import com.api.models.Candidato;
-import com.api.repository.CandidatoRepository;
+import com.api.service.CandidatoService;
+import com.api.util.ExceptionHandlerUtil;
+import com.api.util.ResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class CandidatoHandler implements HttpHandler {
-    private final CandidatoRepository repository = new CandidatoRepository();
+
+    private final CandidatoService service = new CandidatoService();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-        String path = exchange.getRequestURI().getPath();
-        String response = "";
-        int statusCode = 200;
 
         try {
+
+            String method = exchange.getRequestMethod();
+            String path = exchange.getRequestURI().getPath();
+
             if ("POST".equals(method)) {
-                response = cadastrar(lerCorpo(exchange));
-                statusCode = 201;
+
+                Candidato c = mapper.readValue(exchange.getRequestBody(), Candidato.class);
+                service.cadastrar(c);
+
+                ResponseUtil.sucesso(exchange, 201, "Candidato cadastrado", null);
+
             } else if ("GET".equals(method)) {
+
                 String[] partes = path.split("/");
+
                 if (partes.length > 2) {
-                    response = mapper.writeValueAsString(repository.buscarPorId(Integer.parseInt(partes[2])));
+                    int id = Integer.parseInt(partes[2]);
+                    ResponseUtil.sucesso(exchange, 200, "Candidato encontrado", service.buscar(id));
                 } else {
-                    response = mapper.writeValueAsString(repository.buscarTodos());
+                    ResponseUtil.sucesso(exchange, 200, "Lista", service.listar());
                 }
+
             } else if ("DELETE".equals(method)) {
-                String[] partes = path.split("/");
-                if (partes.length > 2) {
-                    repository.deletar(Integer.parseInt(partes[2]));
-                    response = "Candidato removido.";
-                }
+
+                int id = Integer.parseInt(path.split("/")[2]);
+                service.deletar(id);
+
+                ResponseUtil.sucesso(exchange, 200, "Removido", null);
+
+            } else {
+                ResponseUtil.erro(exchange, 405, "Método não permitido");
             }
+
         } catch (Exception e) {
-            response = "Erro: " + e.getMessage();
-            statusCode = 400;
-        }
-        enviarResposta(exchange, response, statusCode);
-    }
-
-    private String cadastrar(String json) throws Exception {
-        Candidato c = mapper.readValue(json, Candidato.class);
-        repository.salvar(c);
-        return "Sucesso: Candidato cadastrado.";
-    }
-
-    private String lerCorpo(HttpExchange exchange) throws IOException {
-        return new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-    }
-
-    private void enviarResposta(HttpExchange exchange, String response, int statusCode) throws IOException {
-        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
-        exchange.sendResponseHeaders(statusCode, bytes.length);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(bytes);
+            ExceptionHandlerUtil.handle(exchange, e);
         }
     }
 }
