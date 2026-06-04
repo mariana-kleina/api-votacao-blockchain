@@ -19,7 +19,7 @@ public class EleitorRepository {
     public void salvar(Eleitor eleitor) {
 
         String sqlCheck = "SELECT COUNT(*) FROM eleitores WHERE cpf = ?";
-        String sqlInsert = "INSERT INTO eleitores (nome, cpf, idade) VALUES (?, ?, ?)";
+        String sqlInsert = "INSERT INTO eleitores (nome, cpf, idade, cep, cidade) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
 
@@ -36,6 +36,8 @@ public class EleitorRepository {
                 insert.setString(1, eleitor.getNome());
                 insert.setString(2, eleitor.getCpf());
                 insert.setInt(3, eleitor.getIdade());
+                insert.setString(4, eleitor.getCep());
+                insert.setString(5, eleitor.getCidade());
                 insert.executeUpdate();
             }
 
@@ -64,7 +66,7 @@ public class EleitorRepository {
 
     public void atualizar(int id, Eleitor eleitor) {
 
-        String sql = "UPDATE eleitores SET nome=?, cpf=?, idade=? WHERE id=?";
+        String sql = "UPDATE eleitores SET nome=?, cpf=?, idade=?, cep=?, cidade=? WHERE id=?";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -72,7 +74,9 @@ public class EleitorRepository {
             stmt.setString(1, eleitor.getNome());
             stmt.setString(2, eleitor.getCpf());
             stmt.setInt(3, eleitor.getIdade());
-            stmt.setInt(4, id);
+            stmt.setString(4, eleitor.getCep());
+            stmt.setString(5, eleitor.getCidade());
+            stmt.setInt(6, id);
 
             if (stmt.executeUpdate() == 0) {
                 throw new ResourceNotFoundException("Eleitor não encontrado");
@@ -104,7 +108,9 @@ public class EleitorRepository {
                 rs.getInt("id"),
                 rs.getString("nome"),
                 rs.getString("cpf"),
-                rs.getInt("idade")
+                rs.getInt("idade"),
+                rs.getString("cep"),
+                rs.getString("cidade")
         );
     }
 
@@ -124,7 +130,9 @@ public class EleitorRepository {
                         rs.getInt("id"),
                         rs.getString("nome"),
                         rs.getString("cpf"),
-                        rs.getInt("idade")
+                        rs.getInt("idade"),
+                        rs.getString("cep"),
+                        rs.getString("cidade")
                 );
             }
 

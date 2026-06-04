@@ -22,7 +22,9 @@ public class ConnectionFactory {
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
                     "nome VARCHAR(255), " +
                     "cpf VARCHAR(14), " +
-                    "idade INT)");
+                    "idade INT," +
+                    "cep VARCHAR(10), " +
+                    "cidade VARCHAR(255))");
 
             stmt.execute("CREATE TABLE IF NOT EXISTS candidatos (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
