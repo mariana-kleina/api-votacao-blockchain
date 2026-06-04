@@ -23,7 +23,7 @@ public class ConnectionFactory {
                     "nome VARCHAR(255), " +
                     "cpf VARCHAR(14), " +
                     "idade INT," +
-                    "cep VARCHAR(10), " +
+                    "cep VARCHAR(9), " +
                     "cidade VARCHAR(255))");
 
             stmt.execute("CREATE TABLE IF NOT EXISTS candidatos (" +

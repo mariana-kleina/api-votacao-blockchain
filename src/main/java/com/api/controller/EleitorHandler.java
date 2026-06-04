@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import com.api.exceptions.IdadeInvalidaException;
 import com.api.models.Eleitor;
 import com.api.repository.EleitorRepository;
+import com.api.service.ViaCepService; // 🆕 IMPORT ADICIONADO
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -15,6 +16,7 @@ import com.sun.net.httpserver.HttpHandler;
 public class EleitorHandler implements HttpHandler {
     private final EleitorRepository repository = new EleitorRepository();
     private final ObjectMapper mapper = new ObjectMapper();
+    private final ViaCepService viaCepService = new ViaCepService(); // 🆕 SERVIÇO INSTANCIADO
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -78,8 +80,9 @@ public class EleitorHandler implements HttpHandler {
             statusCode = 400;
 
         } catch (Exception e) {
-            response = "Erro interno: " + e.getMessage();
-            statusCode = 500;
+            // Se o ViaCEP ou nossa validação der erro, a mensagem cai aqui!
+            response = "Erro: " + e.getMessage();
+            statusCode = 400;
         }
 
         enviarResposta(exchange, response, statusCode);
@@ -87,18 +90,20 @@ public class EleitorHandler implements HttpHandler {
 
     private String cadastrar(String json) throws Exception {
         Eleitor novoEleitor = mapper.readValue(json, Eleitor.class);
-        if (novoEleitor.getIdade() < 16) {
-            throw new IdadeInvalidaException("Eleitor inapto: idade mínima é 16 anos.");
-        }
+        
+        // 🆕 ANTES DE SALVAR, CHAMA A NOSSA VALIDAÇÃO DO VIACEP
+        validar(novoEleitor); 
+        
         repository.salvar(novoEleitor);
         return "Sucesso: Eleitor cadastrado.";
     }
 
     private String atualizar(int id, String json) throws Exception { 
         Eleitor eleitor = mapper.readValue(json, Eleitor.class);
-        if (eleitor.getIdade() < 16) {
-            throw new IdadeInvalidaException("Eleitor inapto: idade mínima é 16 anos.");
-        }
+        
+        // 🆕 ANTES DE ATUALIZAR, TAMBÉM VALIDA O CEP
+        validar(eleitor); 
+        
         repository.atualizar(id, eleitor);
         return "Sucesso: Eleitor atualizado.";
     }
@@ -117,6 +122,32 @@ public class EleitorHandler implements HttpHandler {
         exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
+        }
+    }
+
+    // 🆕 NOVO MÉTODO COMPLETO DE VALIDAÇÃO DE REGRAS DE NEGÓCIO E API
+    private void validar(Eleitor e) throws Exception {
+        if (e.getNome() == null || e.getNome().isBlank())
+            throw new Exception("Nome é obrigatório");
+
+        if (e.getCpf() == null || !e.getCpf().matches("\\d{11}"))
+            throw new Exception("CPF inválido! Digite apenas os 11 números.");
+
+        if (e.getIdade() < 16)
+            throw new IdadeInvalidaException("Eleitor inapto: idade mínima é 16 anos.");
+
+        if (e.getCep() == null || e.getCep().isBlank())
+            throw new Exception("CEP é obrigatório para validação da zona eleitoral.");
+
+        // 1. Vai na internet consultar o ViaCEP
+        String cidadeSms = viaCepService.buscarCidadePorCep(e.getCep());
+        
+        // 2. Salva a cidade no objeto para gravar no banco de dados
+        e.setCidade(cidadeSms);
+
+        // 3. Regra final: Trava o cadastro se a cidade for diferente
+        if (!"Curitiba".equalsIgnoreCase(cidadeSms)) {
+            throw new Exception("Eleitor inapto: Este sistema de votação é exclusivo para o município de Curitiba (Identificado: " + cidadeSms + ").");
         }
     }
 }
