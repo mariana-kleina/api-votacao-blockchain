@@ -18,7 +18,7 @@ public class BlockchainService {
     private final EleitorRepository eleitorRepository = new EleitorRepository();
     private final VotoRepository votoRepository = new VotoRepository();
 
-    public void registrarVoto(String cpf, int numeroCandidato) {
+    public String registrarVoto(String cpf, int numeroCandidato) {
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
@@ -26,6 +26,9 @@ public class BlockchainService {
 
         VotoBloco votoBloco = new VotoBloco(cpf, numeroCandidato, votoHash, timestamp);
         repository.adicionarVoto(votoBloco);
+
+        // Retorna o hash para garantir anonimato na mensageria
+        return votoHash;
     }
 
     public VotoBloco verificarEleitor(String cpf) {

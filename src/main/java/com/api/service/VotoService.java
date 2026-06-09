@@ -39,11 +39,11 @@ public class VotoService {
             throw new ResourceNotFoundException("Eleitor não encontrado");
         }
 
-        blockchainService.registrarVoto(eleitor.getCpf(), voto.getNumeroCandidato());
+        // Registra na blockchain e obtém o hash gerado para o voto
+        String votoHash = blockchainService.registrarVoto(eleitor.getCpf(), voto.getNumeroCandidato());
 
-        // Envia mensagem para a fila do RabbitMQ informando o novo voto
-        String mensagem = "Voto registrado | Eleitor CPF: " + eleitor.getCpf()
-                + " | Candidato: " + voto.getNumeroCandidato();
+        // Envia apenas o hash para a fila — nenhum dado identificável é exposto
+        String mensagem = "Novo voto registrado | Hash: " + votoHash;
         votoProducer.enviarMensagem(mensagem);
     }
 
