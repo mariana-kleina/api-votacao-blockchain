@@ -7,6 +7,7 @@ import com.api.controller.BlockchainHandler;
 import com.api.controller.CandidatoHandler;
 import com.api.controller.EleitorHandler;
 import com.api.controller.VotoHandler;
+import com.api.messaging.VotoConsumer;
 import com.api.service.BlockchainService;
 import com.sun.net.httpserver.HttpServer;
 
@@ -15,9 +16,14 @@ public class Main {
 
         ConnectionFactory.inicializarBanco();
 
-        //RECONSTROI A BLOCKCHAIN COM OS VOTOS JA EXISTENTES NO BANCO
+        // RECONSTROI A BLOCKCHAIN COM OS VOTOS JA EXISTENTES NO BANCO
         BlockchainService blockchainService = new BlockchainService();
         blockchainService.reconstruirDoBanco();
+
+        // INICIA O CONSUMER DO RABBITMQ EM UMA THREAD SEPARADA
+        // (para não bloquear o servidor HTTP)
+        VotoConsumer consumer = new VotoConsumer();
+        new Thread(consumer::iniciar, "rabbitmq-consumer").start();
 
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 

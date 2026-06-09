@@ -42,7 +42,8 @@ public class EleitorRepository {
             }
 
         } catch (SQLException e) {
-            throw new DatabaseException("Erro ao salvar eleitor");
+             e.printStackTrace();
+        throw new DatabaseException("Erro ao salvar eleitor: " + e.getMessage());
         }
     }
 
@@ -93,6 +94,8 @@ public class EleitorRepository {
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
 
             if (stmt.executeUpdate() == 0) {
                 throw new ResourceNotFoundException("Eleitor não encontrado");

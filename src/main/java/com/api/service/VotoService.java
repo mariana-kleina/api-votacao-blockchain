@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.api.exceptions.ResourceNotFoundException;
 import com.api.exceptions.ValidationException;
+import com.api.messaging.VotoProducer;
 import com.api.models.Eleitor;
 import com.api.models.Voto;
 import com.api.repository.EleitorRepository;
@@ -14,6 +15,7 @@ public class VotoService {
     private final VotoRepository repository = new VotoRepository();
     private final EleitorRepository eleitorRepository = new EleitorRepository();
     private final BlockchainService blockchainService = new BlockchainService();
+    private final VotoProducer votoProducer = new VotoProducer();
 
     public void cadastrarVoto(Voto voto) {
 
@@ -38,6 +40,11 @@ public class VotoService {
         }
 
         blockchainService.registrarVoto(eleitor.getCpf(), voto.getNumeroCandidato());
+
+        // Envia mensagem para a fila do RabbitMQ informando o novo voto
+        String mensagem = "Voto registrado | Eleitor CPF: " + eleitor.getCpf()
+                + " | Candidato: " + voto.getNumeroCandidato();
+        votoProducer.enviarMensagem(mensagem);
     }
 
     public List<Voto> listarVotos() {

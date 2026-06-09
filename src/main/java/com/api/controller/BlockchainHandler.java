@@ -27,7 +27,7 @@ public class BlockchainHandler implements HttpHandler {
                 return;
             }
 
-            // ✅ /blockchain
+            // /blockchain
             if (partes.length == 2) {
 
                 var blockchain = service.getBlockchain();
@@ -48,7 +48,7 @@ public class BlockchainHandler implements HttpHandler {
                 ResponseUtil.sucesso(exchange, 200, "Blockchain completa", blockchain);
             }
 
-            // ✅ /blockchain/total
+            // /blockchain/total
             else if (partes.length == 3 && partes[2].equals("total")) {
 
                 int total = service.totalDeVotos();
@@ -56,7 +56,7 @@ public class BlockchainHandler implements HttpHandler {
                 ResponseUtil.sucesso(exchange, 200, "Total de votos", total);
             }
 
-            // ✅ /blockchain/candidato/{numero}
+            // /blockchain/candidato/{numero}
             else if (partes.length == 4 && partes[2].equals("candidato")) {
 
                 int numero = Integer.parseInt(partes[3]);
@@ -66,7 +66,7 @@ public class BlockchainHandler implements HttpHandler {
                 ResponseUtil.sucesso(exchange, 200, "Votos por candidato", total);
             }
 
-            // ✅ /blockchain/eleitor/{cpf}
+            // /blockchain/eleitor/{cpf}
             else if (partes.length == 4 && partes[2].equals("eleitor")) {
 
                 String cpf = partes[3];
